@@ -81,3 +81,9 @@ Tagline:
 
 “If it doesn’t unfold, it doesn’t work.” ✅
 ```
+
+* Run tests
+- `swipl -s test_runner.pl`
+
+* Test a file
+- `swipl -s pid_cli.pl -- examples/reverse.pl --tail --proof`
