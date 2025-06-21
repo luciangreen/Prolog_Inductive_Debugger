@@ -1,4 +1,75 @@
-# Prolog Inductive Debugger
+# Prolog Inductive Debugger (PID)
+
+Author: luciangreen (lg3)  
+Date: 2025-06-21 21:48:09
+
+## Introduction
+
+The Prolog Inductive Debugger (PID) is a static analysis tool for Prolog programs that verifies whether predicates satisfy inductive properties. It checks:
+
+1. Base cases
+2. Inductive steps
+3. Termination
+4. Tail recursion (optional)
+
+It can also generate proof traces to show how predicates execute.
+
+## Installation
+
+Clone this repository:
+
+```bash
+git clone https://github.com/luciangreen/Prolog_Inductive_Debugger.git
+cd Prolog_Inductive_Debugger
+
+```
+How It Works
+PID analyzes Prolog predicates using principles from induction:
+
+Base Case Analysis: Verifies that all recursive predicates have proper base cases.
+Inductive Step Analysis: Checks that recursive calls use structurally smaller inputs.
+Termination Analysis: Combines base case and inductive step analysis to verify termination.
+Tail Recursion Analysis: (Optional) Checks if recursive calls are in tail position.
+Bug Detection: Identifies common issues in recursive predicates.
+
+File Structure
+pid.pl: Main analysis engine
+proof_trace.pl: Proof trace generator
+bug_detector.pl: Bug detection module
+run_pid.sh: Shell script for running the analyzer
+examples/: Example Prolog files for testing
+
+Example Output
+Code
+Analyzing examples/reverse.pl with options [check_tail_recursion,generate_proof]
+Loading file: examples/reverse.pl
+Found 2 predicates to analyze
+Analyzing reverse/2 with 1 clauses...
+  Found 0 base cases and 1 recursive cases
+Analyzing reverse_acc/3 with 2 clauses...
+  Found 1 base cases and 1 recursive cases
+
+==== Prolog Inductive Debugger Report ====
+
+Predicate: reverse/2
+-------------------
+✗ Base Case: invalid
+✓ Inductive Step: valid
+✗ Termination: invalid
+✗ Tail Recursion: invalid
+✗ Issues found: [missing_base_case,non_terminating,non_tail_recursive]
+
+Predicate: reverse_acc/3
+-------------------
+✓ Base Case: valid
+✓ Inductive Step: valid
+✓ Termination: valid
+✓ Tail Recursion: valid
+✓ All checks passed.
+Proof trace generated (use --verbose to display)
+
+==== End of Report ====
+```
 
 ```
 A system that uses just induction and pattern unfolding to find invisible bugs like failure to terminate, incorrect results, or non-tail-recursive structures is very feasible.
@@ -86,4 +157,11 @@ Tagline:
 - `swipl -s test_runner.pl`
 
 * Test a file
-- `swipl -s pid_cli.pl -- examples/reverse.pl --tail --proof`
+```
+./run_pid.sh <file.pl> [options]
+```
+
+* Options:
+- --tail: Check for tail recursion
+- --proof: Generate proof traces
+- --verbose: Show detailed output including proof traces
