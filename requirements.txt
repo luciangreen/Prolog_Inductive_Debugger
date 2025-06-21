@@ -1,0 +1,126 @@
+Here is a Requirements Document for the Prolog Inductive Debugger, which ensures 100% success on all structural proof-based test cases by using induction and pattern unfolding.
+
+⸻
+
+🧾 Requirements Document
+
+Project: Prolog Inductive Debugger (PID)
+
+Purpose:
+
+To build a tool that verifies recursive Prolog predicates using induction and pattern unfolding, ensuring correctness, termination, and tail recursion without relying on complexity analysis or runtime evaluation.
+
+⸻
+
+1. System Overview
+
+The Prolog Inductive Debugger (PID) is a static analysis tool that:
+	•	Takes a Prolog predicate (with rules and facts),
+	•	Applies induction on recursive structures (lists, trees, numbers),
+	•	Uses pattern unfolding to evaluate correctness of recursive descent and construction,
+	•	Validates if the predicate:
+	•	Terminates (base case is reachable),
+	•	Is correct (reconstructs intended output),
+	•	Is tail-recursive (optional flag),
+	•	Reports invisible bugs like:
+	•	Missing base cases,
+	•	Incorrect recursion patterns,
+	•	Non-tail recursion (if requested).
+
+⸻
+
+2. Key Functional Requirements
+
+#	Requirement	Description
+R1	Spec Input Parser	Accept standard Prolog predicate definitions from a .pl file or direct text input.
+R2	Term Structure Extractor	Recognize recursive data structures: lists `[H
+R3	Base Case Validator	Detect and validate the base case for termination (e.g. reverse([], Acc, Acc)).
+R4	Inductive Step Validator	Symbolically apply induction, unfold recursive cases, and validate structural logic.
+R5	Tail Recursion Checker	Flag if the recursive call is in tail position (accumulator-based forms).
+R6	Proof Trace Generator	Output structured proof trees showing recursive descent and unfolding.
+R7	Invisible Bug Detector	Identify structural errors: missing or incorrect base case, non-progressing recursion, non-tail recursion.
+R8	Test Runner	Execute a full suite of internal logic test cases to ensure 100% correctness.
+R9	Summary Report Generator	Output user-friendly report with pass/fail results and visual traces of induction.
+
+
+⸻
+
+3. Non-Functional Requirements
+
+#	Requirement	Description
+N1	High Accuracy	Must score 100% on all designed test cases. No false positives/negatives allowed.
+N2	Readable Output	Must produce human-readable output with clear trace reasoning.
+N3	CLI Usability	Must run from command line with minimal setup.
+N4	Extensible Grammar	Easy to extend with new recursive patterns or output formats.
+N5	Safe Evaluation	No actual Prolog execution is required—symbolic only.
+
+
+⸻
+
+4. Example Use Case
+
+Input:
+
+reverse(L, R) :- reverse_acc(L, [], R).
+reverse_acc([], Acc, Acc).
+reverse_acc([H|T], Acc, R) :- reverse_acc(T, [H|Acc], R).
+
+Output:
+
+✔ Base Case: reverse_acc([], Acc, Acc) — OK
+✔ Inductive Step: [H|T] → [H|Acc] → R — OK
+✔ Termination: Proven via structure shrinking (T < [H|T])
+✔ Tail Recursion: Yes (recursive call is last)
+✔ All checks passed.
+
+
+⸻
+
+5. Test Case List (Must Score 100%)
+
+Each test case verifies one or more of: base case, induction, unfolding, tail recursion.
+
+ID	Description	Status
+TC1	List reversal (tail-recursive)	✅
+TC2	List reversal (naive)	✅
+TC3	Factorial (structural recursion)	✅
+TC4	Fibonacci (bad base case)	❌ (Correctly flagged)
+TC5	Incorrect append (base case missing)	❌ (Correctly flagged)
+TC6	Infinite recursion (no structural progress)	❌ (Correctly flagged)
+TC7	Tree traversal (inorder)	✅
+TC8	Tree sum (non-tail-recursive)	✅
+TC9	Tree sum (tail-recursive)	✅
+TC10	Incorrect accumulator use	❌ (Correctly flagged)
+
+All ✅ tests must pass fully. All ❌ tests must be correctly flagged as invalid.
+
+⸻
+
+6. Architecture Plan
+	•	Parser → parses Prolog code into AST
+	•	Analyzer → builds structure trees, identifies base and recursive rules
+	•	Unfolder → applies symbolic unfolding to test recursive flow
+	•	Induction Engine → simulates base + step checking
+	•	Tail Checker → checks whether recursive call is in final position
+	•	Reporter → formats result into proof log with summary
+
+⸻
+
+7. Deployment Goals
+	•	✅ Works offline with no Prolog runtime
+	•	✅ Single script in Prolog or Starlog-compatible dialect
+	•	✅ Optional integration into LucianLang toolchain
+
+⸻
+
+8. Constraints
+	•	No dynamic execution or exhaustive runtime testing
+	•	Limited to first-order logic, deterministic programs
+	•	Handles lists, Peano numbers, and basic binary trees
+	•	Focused on recursive predicates only
+
+⸻
+
+✅ Conclusion
+
+This project formalizes an automated inductive debugger that gives users guarantees of structural soundness in recursive programs. It catches invisible bugs using symbolic reasoning — and must pass all tests to be production-ready.
