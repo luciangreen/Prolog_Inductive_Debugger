@@ -1,0 +1,54 @@
+To achieve tail recursion, you must ensure that the recursive call is the last operation in a function or predicate. This allows the compiler or interpreter to optimize the call by reusing the current stack frame, avoiding stack growth and potential overflows.
+
+⸻
+
+🔁 Step-by-Step: How to Achieve Tail Recursion
+	1.	Add an Accumulator Argument
+Introduce an extra parameter (called an accumulator) to collect intermediate results as the recursion proceeds.
+	2.	Shift Work to Before the Recursive Call
+Ensure any work (e.g. computation or list construction) is done before the recursive call, so the call is the final action.
+	3.	Make the Recursive Call the Last Expression
+The recursive call must return directly without further computation. In Prolog or functional languages, this means:
+
+my_tail_recursive(X, Acc, Result) :- ... , my_tail_recursive(NewX, NewAcc, Result).
+
+
+	4.	Use a Wrapper Function
+Write a wrapper that starts with a default value for the accumulator and calls the tail-recursive version.
+
+⸻
+
+✅ Example: Tail-Recursive List Reversal (Prolog)
+
+% Wrapper
+reverse(L, R) :- reverse_acc(L, [], R).
+
+% Tail-recursive helper
+reverse_acc([], Acc, Acc).  % Base case: done
+reverse_acc([H|T], Acc, R) :- reverse_acc(T, [H|Acc], R).
+
+Here:
+	•	Acc accumulates the reversed list.
+	•	The recursive call is the final operation (reverse_acc/3).
+	•	No computation follows the recursive step.
+
+⸻
+
+🚫 Non-Tail-Recursive Version
+
+reverse([], []).
+reverse([H|T], R) :-
+    reverse(T, RT),
+    append(RT, [H], R).  % Not tail-recursive due to append after the call
+
+Here, append/3 happens after the recursive call, so it cannot be optimized for tail recursion.
+
+⸻
+
+📌 Summary
+
+To achieve tail recursion:
+	•	Use an accumulator.
+	•	Ensure the recursive call is the last step.
+	•	Wrap the call with a helper if needed.
+	•	This transformation ensures constant stack space and improves performance and reliability.
