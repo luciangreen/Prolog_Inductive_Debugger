@@ -1,6 +1,6 @@
 % Prolog Inductive Debugger (PID)
 % Author: luciangreen
-% Date: 2025-06-21 22:32:58
+% Date: 2025-06-30 04:05:43
 
 % Import required libraries
 :- use_module(library(lists)).
@@ -466,12 +466,34 @@ print_proof_trace(proof_trace(ProofTrace)) :-
     
     format('  Base Cases:~n'),
     forall(member(K-base_proof(Head, Body, _), BaseProofs),
-           format('    ~w: ~w :- ~w~n', [K, Head, Body])),
+           (rename_variables(Head, HeadRenamed),
+            rename_variables(Body, BodyRenamed),
+            format('    ~w: ~w :- ~w~n', [K, HeadRenamed, BodyRenamed]))),
     
     format('  Inductive Steps:~n'),
     forall(member(K-inductive_proof(Head, Body, Unfolding), IndProofs),
-          (format('    ~w: ~w :- ~w~n', [K, Head, Body]),
-           format('      Unfolds to: ~w~n', [Unfolding]))).
+          (rename_variables(Head, HeadRenamed),
+           rename_variables(Body, BodyRenamed),
+           rename_variables(Unfolding, UnfoldingRenamed),
+           format('    ~w: ~w :- ~w~n', [K, HeadRenamed, BodyRenamed]),
+           format('      Unfolds to: ~w~n', [UnfoldingRenamed]))).
+
+% Rename variables to use A, B, C, etc. instead of _ with numbers
+rename_variables(Term, Renamed) :-
+    % Create a copy with fresh variables
+    copy_term(Term, Renamed),
+    % Get all variables in the renamed term
+    term_variables(Renamed, Vars),
+    % Give the variables alphabetical names
+    rename_vars_alphabetically(Vars, 0).
+
+% Rename variables alphabetically starting from A
+rename_vars_alphabetically([], _).
+rename_vars_alphabetically([Var|Vars], N) :-
+    atom_concat('Var', N, VarName),
+    Var = VarName,
+    N1 is N + 1,
+    rename_vars_alphabetically(Vars, N1).
 
 % Detect bugs in a predicate definition
 detect_bugs(Structure, BaseCaseValid, InductiveStepsValid, TerminationValid, TailRecursiveValid, Bugs) :-
